@@ -1,0 +1,43 @@
+# Signals and Systems Visualizations
+
+Welcome to the **Signals and Systems Visualizations** repository! This project is dedicated to providing interactive and intuitive visualizations for various topics in signals and systems. These tools are designed to help students, educators, and enthusiasts better understand the fundamental concepts of signal processing.
+
+## Current Features
+
+### Shifted Cosine Wave Decomposition
+
+The repository currently includes a visualization tool for decomposing a shifted cosine wave into its non-shifted cosine and sine wave components. This tool allows users to:
+
+- Explore how phase shifts affect cosine waves.
+- Visualize the relationship between shifted and non-shifted waveforms.
+- Gain insights into the mathematical decomposition process.
+
+## Development
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/sigsys.git
+   ```
+
+2. Open sigsys/index.html in your browser.
+
+## Future Plans
+
+We aim to expand this repository with additional visualizations, including:
+
+- Fourier series and transforms.
+- Convolution operations.
+- Sampling and aliasing effects.
+
+Stay tuned for updates!
+
+## Contributions
+
+Contributions are welcome! If you have ideas for new visualizations or improvements, feel free to open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+Happy learning!
