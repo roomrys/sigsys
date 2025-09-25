@@ -20,57 +20,182 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 10px;
+            padding: 8px;
             box-sizing: border-box;
+            min-height: 0;
+            /* Allow flex items to shrink below content size */
         }
 
         .header {
             flex-shrink: 0;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            max-height: 20vh;
+            /* Limit header to 20% of viewport height */
+            overflow: hidden;
         }
 
         .header h1 {
-            margin: 5px 0;
-            font-size: 1.5em;
+            margin: 3px 0;
+            font-size: clamp(1.1em, 2.5vw, 1.5em);
+            /* Responsive font size */
         }
 
         .header p {
-            margin: 5px 0;
-            font-size: 0.9em;
+            margin: 3px 0;
+            font-size: clamp(0.7em, 1.8vw, 0.9em);
+            /* Responsive font size */
+            line-height: 1.2;
         }
 
         .charts-section {
             flex: 1;
             display: flex;
+            gap: 8px;
+            min-height: 0;
+            /* Allow flex items to shrink */
+            overflow: hidden;
+        }
+
+        .left-charts {
+            flex: 2;
+            display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 3px;
+            min-height: 0;
+        }
+
+        .right-charts {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
 
         .chart-item {
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-height: 0;
+        }
+
+        .complex-chart-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .complex-chart-item .chart-container {
+            flex: 1;
+            width: 95%;
+            margin: 0 auto;
+            aspect-ratio: 1 / 1;
+            /* Force square aspect ratio */
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .chart-item h2 {
-            margin: 5px 0;
-            font-size: 1.1em;
+            margin: 2px 0;
+            font-size: clamp(0.9em, 2vw, 1.1em);
+            /* Responsive font size */
             flex-shrink: 0;
+        }
+
+        .complex-chart-item p {
+            margin: 1px 0 3px 0;
+            font-size: clamp(0.6em, 1.5vw, 0.8em);
+            /* Responsive font size */
         }
 
         .chart-container {
             flex: 1;
-            width: 90%;
+            width: 95%;
             margin: 0 auto;
+            min-height: 0;
+            /* Allow charts to shrink */
         }
 
         .controls {
             flex-shrink: 0;
-            margin: 10px 0;
+            margin: 6px 0;
+            font-size: clamp(0.7em, 1.6vw, 0.9em);
+            /* Responsive font size */
         }
 
         canvas {
             margin: 0;
+        }
+
+        /* Media query for very narrow screens - allow vertical scrolling but keep slider fixed */
+        @media (max-width: 664px) {
+            body {
+                overflow-y: auto;
+                /* Allow vertical scrolling */
+                overflow-x: hidden;
+            }
+
+            .main-container {
+                height: auto;
+                /* Don't constrain to viewport height */
+                min-height: 100vh;
+                padding: 5px 5px 70px 5px;
+                /* Add bottom padding for fixed slider */
+            }
+
+            .header {
+                margin-bottom: 5px;
+            }
+
+            .header p {
+                font-size: clamp(0.6em, 1.5vw, 0.8em);
+            }
+
+            .charts-section {
+                gap: 3px;
+                flex: none;
+                flex-direction: column;
+                /* Don't use flex sizing */
+                height: auto;
+                /* Allow natural height */
+            }
+
+            .left-charts {
+                flex: none;
+                height: auto;
+                /* Allow natural height */
+            }
+
+            .right-charts {
+                flex: none;
+                height: auto;
+                /* Allow natural height */
+            }
+
+            .chart-item {
+                height: 300px;
+                /* Fixed height for each chart */
+                min-height: 300px;
+            }
+
+            .complex-chart-item {
+                height: 300px;
+                /* Fixed height for complex chart */
+                min-height: 300px;
+            }
+
+            .controls {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                border-top: 1px solid #ddd;
+                padding: 8px;
+                margin: 0;
+                z-index: 1000;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            }
         }
     </style>
 </head>
@@ -79,35 +204,52 @@
     <div class="main-container">
         <div class="header">
             <h1>Cosine-Sine Decomposition</h1>
-            <p>Plots of the original phase-shifted cosine, the non-phase-shifted cosine, and the sine wave.</p>
+            <p><strong>Formula:</strong> cos(t + φ) = cos(φ)cos(t) - sin(φ)sin(t)</p>
+            <p>This shows how a <strong>phase-shifted cosine</strong> (orange) can be decomposed into the sum of two
+                components:
+                a <strong>scaled cosine</strong> (blue) and a <strong>scaled sine</strong> (green). The red dashed line
+                proves they sum to the original.</p>
         </div>
 
         <div class="charts-section">
-            <div class="chart-item">
-                <h2 id="phaseShiftedCosineTitle">cos(t + φ)</h2>
-                <div class="chart-container">
-                    <canvas id="phaseShiftedCosineChart"></canvas>
+            <div class="left-charts">
+                <div class="chart-item">
+                    <h2 id="phaseShiftedCosineTitle">cos(t + φ)</h2>
+                    <div class="chart-container">
+                        <canvas id="phaseShiftedCosineChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <h2 id="nonPhaseShiftedCosineTitle">cos(φ)cos(t)</h2>
+                    <div class="chart-container">
+                        <canvas id="nonPhaseShiftedCosineChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-item">
+                    <h2 id="sineWaveTitle">-sin(φ)sin(t)</h2>
+                    <div class="chart-container">
+                        <canvas id="sineWaveChart"></canvas>
+                    </div>
                 </div>
             </div>
-            <div class="chart-item">
-                <h2 id="nonPhaseShiftedCosineTitle">cos(φ)cos(t)</h2>
-                <div class="chart-container">
-                    <canvas id="nonPhaseShiftedCosineChart"></canvas>
-                </div>
-            </div>
-            <div class="chart-item">
-                <h2 id="sineWaveTitle">-sin(φ)sin(t)</h2>
-                <div class="chart-container">
-                    <canvas id="sineWaveChart"></canvas>
+            <div class="right-charts">
+                <div class="complex-chart-item">
+                    <h2 id="complexPlaneTitle">Complex Representation</h2>
+                    <p style="font-size: 0.8em; margin: 0 0 5px 0;">e^(iφ) = cos(φ) + i·sin(φ)</p>
+                    <div class="chart-container">
+                        <canvas id="complexPlaneChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="controls">
             <div style="margin-bottom: 10px;">
-                <label for="phaseShiftSlider">Phase Shift (radians): </label>
+                <label for="phaseShiftSlider">Phase Shift (φ): </label>
                 <input type="range" id="phaseShiftSlider" min="0" value="0.785">
                 <span id="phaseShiftValue">π/4</span>
+                <span style="font-size: 0.8em; margin-left: 10px; color: #666;">← Drag to see how the decomposition
+                    changes</span>
             </div>
         </div>
     </div>
@@ -121,7 +263,8 @@
         let legendVisible = {
             'phaseShiftedCosineChart': true,
             'nonPhaseShiftedCosineChart': false,
-            'sineWaveChart': false
+            'sineWaveChart': false,
+            'complexPlaneChart': false
         };
         let datasetVisibility = {};
 
@@ -283,7 +426,140 @@
             }
         }
 
-        function updateChartsForPhaseShift(phaseShift) {
+        function createComplexPlaneChart(phaseShift) {
+            // Destroy existing chart if it exists
+            if (charts['complexPlaneChart']) {
+                charts['complexPlaneChart'].destroy();
+            }
+
+            const ctx = document.getElementById('complexPlaneChart').getContext('2d');
+
+            // Single point representing cos(φ) + i·sin(φ)
+            const realPart = Math.cos(phaseShift);
+            const imagPart = Math.sin(phaseShift);
+
+            // Create unit circle for reference
+            const unitCirclePoints = [];
+            for (let angle = 0; angle <= 2 * Math.PI; angle += Math.PI / 50) {
+                unitCirclePoints.push({
+                    x: Math.cos(angle),
+                    y: Math.sin(angle)
+                });
+            }
+
+            charts['complexPlaneChart'] = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Unit Circle',
+                            data: unitCirclePoints,
+                            borderColor: 'rgba(128, 128, 128, 0.5)',
+                            backgroundColor: 'transparent',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            showLine: true,
+                            fill: false
+                        },
+                        {
+                            label: 'Projection Lines',
+                            data: [
+                                { x: realPart, y: 0 },        // Vertical line start (on real axis)
+                                { x: realPart, y: imagPart }, // Main point
+                                { x: 0, y: imagPart },        // Horizontal line start (on imaginary axis)
+                                { x: realPart, y: imagPart }  // Main point again
+                            ],
+                            borderColor: 'rgba(0, 0, 0, 0.3)',
+                            backgroundColor: 'transparent',
+                            borderWidth: 1,
+                            borderDash: [3, 3],
+                            pointRadius: 0,
+                            showLine: true,
+                            fill: false,
+                            segment: {
+                                borderColor: (ctx) => {
+                                    // Different segments for vertical and horizontal lines
+                                    if (ctx.p0DataIndex === 0 && ctx.p1DataIndex === 1) return 'rgba(0, 0, 0, 0.3)'; // Vertical
+                                    if (ctx.p0DataIndex === 2 && ctx.p1DataIndex === 3) return 'rgba(0, 0, 0, 0.3)'; // Horizontal
+                                    return 'transparent'; // Hide connecting line
+                                }
+                            }
+                        },
+                        {
+                            label: 'Real Projection',
+                            data: [{ x: realPart, y: 0 }],
+                            borderColor: 'blue',
+                            backgroundColor: 'blue',
+                            borderWidth: 2,
+                            pointRadius: 6,
+                            showLine: false,
+                            fill: false
+                        },
+                        {
+                            label: 'Imaginary Projection',
+                            data: [{ x: 0, y: imagPart }],
+                            borderColor: 'green',
+                            backgroundColor: 'green',
+                            borderWidth: 2,
+                            pointRadius: 6,
+                            showLine: false,
+                            fill: false
+                        },
+                        {
+                            label: 'e^(iφ) = cos(φ) + i·sin(φ)',
+                            data: [{ x: realPart, y: imagPart }],
+                            borderColor: 'red',
+                            backgroundColor: 'red',
+                            borderWidth: 2,
+                            pointRadius: 8,
+                            showLine: false,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1,
+                    animation: false,
+                    plugins: {
+                        legend: {
+                            display: legendVisible['complexPlaneChart'],
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Real (cos(φ))'
+                            },
+                            min: -1.2,
+                            max: 1.2,
+                            grid: {
+                                drawBorder: true,
+                                color: (context) => Math.abs(context.tick.value) < 0.001 ? 'black' : 'rgba(0,0,0,0.1)',
+                                lineWidth: (context) => Math.abs(context.tick.value) < 0.001 ? 2 : 1
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Imaginary (sin(φ))'
+                            },
+                            min: -1.2,
+                            max: 1.2,
+                            grid: {
+                                drawBorder: true,
+                                color: (context) => Math.abs(context.tick.value) < 0.001 ? 'black' : 'rgba(0,0,0,0.1)',
+                                lineWidth: (context) => Math.abs(context.tick.value) < 0.001 ? 2 : 1
+                            }
+                        }
+                    }
+                }
+            });
+        } function updateChartsForPhaseShift(phaseShift) {
             // Calculate waveforms
             const phaseShiftedCosine = labels.map(x => Math.cos(x + phaseShift));
             const nonPhaseShiftedCosine = labels.map(x => Math.cos(phaseShift) * Math.cos(x));
@@ -308,6 +584,7 @@
             createChart('phaseShiftedCosineChart', 'Phase-Shifted Cosine', phaseShiftedCosine, 'orange', [decomposedSumDataset]);
             createChart('nonPhaseShiftedCosineChart', 'Non-Phase-Shifted Cosine', nonPhaseShiftedCosine, 'blue');
             createChart('sineWaveChart', 'Sine Wave', sineWave, 'green');
+            createComplexPlaneChart(phaseShift);
         }
 
         // Initialize charts
