@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosine-Sine Decomposition</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            flex-shrink: 0;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 5px 0;
+            font-size: 1.5em;
+        }
+
+        .header p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .charts-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .chart-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-item h2 {
+            margin: 5px 0;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .chart-container {
+            flex: 1;
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .controls {
+            flex-shrink: 0;
+            margin: 10px 0;
+        }
+
+        canvas {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>Cosine-Sine Decomposition</h1>
+            <p>Plots of the original phase-shifted cosine, the non-phase-shifted cosine, and the sine wave.</p>
+        </div>
+
+        <div class="charts-section">
+            <div class="chart-item">
+                <h2 id="phaseShiftedCosineTitle">cos(t + φ)</h2>
+                <div class="chart-container">
+                    <canvas id="phaseShiftedCosineChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-item">
+                <h2 id="nonPhaseShiftedCosineTitle">cos(φ)cos(t)</h2>
+                <div class="chart-container">
+                    <canvas id="nonPhaseShiftedCosineChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-item">
+                <h2 id="sineWaveTitle">-sin(φ)sin(t)</h2>
+                <div class="chart-container">
+                    <canvas id="sineWaveChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div style="margin-bottom: 10px;">
+                <label for="phaseShiftSlider">Phase Shift (radians): </label>
+                <input type="range" id="phaseShiftSlider" min="0" value="0.785">
+                <span id="phaseShiftValue">π/4</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const labels = Array.from({ length: 100 }, (_, i) => -Math.PI + (i * (2 * Math.PI / 99)));
+        const phaseShift = Math.PI / 4;
+
+        // Store chart instances and user preferences
+        let charts = {};
+        let legendVisible = {
+            'phaseShiftedCosineChart': true,
+            'nonPhaseShiftedCosineChart': false,
+            'sineWaveChart': false
+        };
+        let datasetVisibility = {};
+
+        const phaseShiftSlider = document.getElementById('phaseShiftSlider');
+        const phaseShiftValue = document.getElementById('phaseShiftValue');
+
+        // Set the slider maximum to exactly 2π and step to π/100
+        phaseStep = Math.PI / 100;
+        phaseShiftSlider.step = phaseStep;
+        phaseShiftSlider.max = 2 * Math.PI + phaseStep; // Add a small step to include 2π
+        function formatPiLabels(labels) {
+            return labels.map(label => {
+                const multiple = (label / Math.PI).toFixed(2);
+                if (multiple == 0) return '0';
+                if (multiple == 1) return 'π';
+                if (multiple == -1) return '-π';
+                return `${multiple}π`;
+            });
+        }
+
+        const formattedLabels = formatPiLabels(labels);
+
+        function formatPhaseShift(phaseShift) {
+            const multiple = (phaseShift / Math.PI);
+            return multiple.toFixed(3) + 'π';
+        }
+
+        function updateTitles(phaseShift) {
+            const phaseStr = formatPhaseShift(phaseShift);
+            const cosPhase = Math.cos(phaseShift).toFixed(3);
+            const sinPhase = (-Math.sin(phaseShift)).toFixed(3);
+
+            document.getElementById('phaseShiftedCosineTitle').textContent = `cos(t + ${phaseStr})`;
+            document.getElementById('nonPhaseShiftedCosineTitle').textContent = `${cosPhase}cos(t)`;
+            document.getElementById('sineWaveTitle').textContent = `${sinPhase}sin(t)`;
+        }
+
+        function createChart(canvasId, label, data, borderColor, additionalDatasets = []) {
+            // Store current dataset visibility states before destroying
+            if (charts[canvasId]) {
+                datasetVisibility[canvasId] = {};
+                charts[canvasId].data.datasets.forEach((dataset, index) => {
+                    const meta = charts[canvasId].getDatasetMeta(index);
+                    datasetVisibility[canvasId][index] = meta.hidden !== true;
+                });
+                charts[canvasId].destroy();
+            }
+
+            const ctx = document.getElementById(canvasId).getContext('2d');
+
+            // Create the main dataset
+            const mainDataset = {
+                label: label,
+                data: labels.map((x, i) => ({ x: x, y: data[i] })),
+                borderColor: borderColor,
+                borderWidth: 2,
+                fill: false
+            };
+
+            // Combine main dataset with additional datasets
+            const allDatasets = [mainDataset, ...additionalDatasets]; charts[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: allDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        legend: {
+                            display: legendVisible[canvasId],
+                            position: 'top',
+                            onClick: function (e, legendItem, legend) {
+                                // Default legend click behavior (toggle dataset visibility)
+                                const index = legendItem.datasetIndex;
+                                const chart = legend.chart;
+                                const meta = chart.getDatasetMeta(index);
+                                meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+                                chart.update();
+
+                                // Store the new visibility state
+                                if (!datasetVisibility[canvasId]) {
+                                    datasetVisibility[canvasId] = {};
+                                }
+                                datasetVisibility[canvasId][index] = meta.hidden !== true;
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: canvasId === 'sineWaveChart',
+                                text: 'Time (t)'
+                            },
+                            type: 'linear',
+                            min: -Math.PI,
+                            max: Math.PI,
+                            ticks: {
+                                stepSize: Math.PI,
+                                callback: function (value) {
+                                    if (Math.abs(value + Math.PI) < 0.001) return '-π';
+                                    if (Math.abs(value) < 0.001) return '0';
+                                    if (Math.abs(value - Math.PI) < 0.001) return 'π';
+                                    return '';
+                                }
+                            },
+                            grid: {
+                                drawBorder: true,
+                                color: (context) => Math.abs(context.tick.value) < 0.001 ? 'black' : 'rgba(0,0,0,0.1)',
+                                lineWidth: (context) => Math.abs(context.tick.value) < 0.001 ? 2 : 1
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Amplitude'
+                            },
+                            min: -1.05,
+                            max: 1.05,
+                            ticks: {
+                                stepSize: 0.5,
+                                callback: function (value) {
+                                    if (Math.abs(value + 1) < 0.11) return '-1';
+                                    if (Math.abs(value) < 0.11) return '0';
+                                    if (Math.abs(value - 1) < 0.11) return '1';
+                                    return '';
+                                }
+                            },
+                            grid: {
+                                drawBorder: true,
+                                color: (context) => Math.abs(context.tick.value) < 0.001 ? 'black' : 'rgba(0,0,0,0.1)',
+                                lineWidth: (context) => Math.abs(context.tick.value) < 0.001 ? 2 : 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Restore dataset visibility states
+            if (datasetVisibility[canvasId]) {
+                allDatasets.forEach((dataset, index) => {
+                    if (datasetVisibility[canvasId][index] === false) {
+                        const meta = charts[canvasId].getDatasetMeta(index);
+                        meta.hidden = true;
+                    }
+                });
+                charts[canvasId].update('none'); // Update without animation
+            }
+        }
+
+        function toggleLegend(canvasId) {
+            legendVisible[canvasId] = !legendVisible[canvasId];
+
+            // Update the chart options and redraw
+            if (charts[canvasId]) {
+                charts[canvasId].options.plugins.legend.display = legendVisible[canvasId];
+                charts[canvasId].update('none');
+            }
+        }
+
+        function updateChartsForPhaseShift(phaseShift) {
+            // Calculate waveforms
+            const phaseShiftedCosine = labels.map(x => Math.cos(x + phaseShift));
+            const nonPhaseShiftedCosine = labels.map(x => Math.cos(phaseShift) * Math.cos(x));
+            const sineWave = labels.map(x => -Math.sin(phaseShift) * Math.sin(x));
+            const decomposedSum = labels.map((x, i) => nonPhaseShiftedCosine[i] + sineWave[i]);
+
+            // Update titles and slider display
+            updateTitles(phaseShift);
+            phaseShiftValue.textContent = formatPhaseShift(phaseShift);
+
+            // Create additional dataset for decomposed sum
+            const decomposedSumDataset = {
+                label: 'Decomposed Sum',
+                data: labels.map((x, i) => ({ x: x, y: decomposedSum[i] })),
+                borderColor: 'red',
+                borderWidth: 5,
+                borderDash: [5, 5],
+                fill: false
+            };
+
+            // Create all charts
+            createChart('phaseShiftedCosineChart', 'Phase-Shifted Cosine', phaseShiftedCosine, 'orange', [decomposedSumDataset]);
+            createChart('nonPhaseShiftedCosineChart', 'Non-Phase-Shifted Cosine', nonPhaseShiftedCosine, 'blue');
+            createChart('sineWaveChart', 'Sine Wave', sineWave, 'green');
+        }
+
+        // Initialize charts
+        updateChartsForPhaseShift(phaseShift); phaseShiftSlider.addEventListener('input', () => {
+            const newPhaseShift = parseFloat(phaseShiftSlider.value);
+            updateChartsForPhaseShift(newPhaseShift);
+        });
+    </script>
+</body>
+
+</html>
