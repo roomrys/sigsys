@@ -1,0 +1,103 @@
+@import url('./variables.css');
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: var(--margin-xl);
+    box-sizing: border-box;
+    min-height: 0;
+    /* Allow flex items to shrink below content size */
+}
+
+.header {
+    flex-shrink: 0;
+    margin-bottom: var(--margin-xl);
+    max-height: var(--header-max-height);
+    /* Limit header to 20% of viewport height */
+    overflow: hidden;
+}
+
+.header h1 {
+    margin: var(--margin-md) 0;
+    font-size: var(--font-size-large);
+}
+
+.header p {
+    margin: var(--margin-md) 0;
+    font-size: var(--font-size-small);
+    line-height: 1.2;
+}
+
+.charts-section {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    min-height: 0;
+    /* Allow flex items to shrink */
+    overflow: hidden;
+}
+
+.left-charts {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 8px;
+    min-height: 0;
+}
+
+.left-charts .chart-item:first-child {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.left-charts .complex-chart-item {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+
+.left-charts .chart-item:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.left-charts .chart-item:nth-child(4) {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.right-charts {
+    display: none;
+}
+
+/* Typography */
+.chart-item h2 {
+    margin: var(--margin-sm) 0;
+    font-size: var(--font-size-medium);
+    flex-shrink: 0;
+}
+
+.complex-chart-item p {
+    margin: var(--margin-xs) 0 var(--margin-md) 0;
+    font-size: var(--font-size-xs);
+}
+
+.complex-chart-item h2 {
+    font-size: var(--font-size-medium);
+}
+
+/* Controls */
+.controls {
+    flex-shrink: 0;
+    margin: var(--margin-lg) 0;
+    font-size: var(--font-size-controls);
+}

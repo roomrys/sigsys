@@ -1,0 +1,29 @@
+:root {
+    --header-max-height: 20vh;
+    --mobile-controls-space: 90px;
+    /* Controls height + padding + gaps */
+    --mobile-chart-divisor: 2.2;
+    /* Ensures at least 2 full plots visible */
+    --small-mobile-chart-divisor: 2.5;
+    /* Ensures at least 2.5 full plots visible */
+
+    /* Chart color variables for consistency */
+    --color-orange: #ff7f0e;
+    --color-blue: #1f77b4;
+    --color-green: #2ca02c;
+    --color-red: #d62728;
+
+    /* Responsive font size scales */
+    --font-size-large: clamp(1.1em, 2.5vw, 1.5em);
+    --font-size-medium: clamp(0.9em, 2vw, 1.1em);
+    --font-size-small: clamp(0.8em, 1.8vw, 0.9em);
+    --font-size-xs: 0.8em;
+    --font-size-controls: clamp(0.8em, 1.6vw, 0.9em);
+
+    /* Margin sizes */
+    --margin-xs: 1px;
+    --margin-sm: 2px;
+    --margin-md: 3px;
+    --margin-lg: 6px;
+    --margin-xl: 8px;
+}
