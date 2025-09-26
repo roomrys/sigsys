@@ -73,12 +73,6 @@ export class ChartManager {
           max: options.xMax || Math.PI,
           ticks: {
             stepSize: Math.PI,
-            callback: function (value) {
-              if (Math.abs(value + Math.PI) < 0.001) return "-π";
-              if (Math.abs(value) < 0.001) return "0";
-              if (Math.abs(value - Math.PI) < 0.001) return "π";
-              return "";
-            },
           },
           grid: {
             drawBorder: true,
@@ -99,20 +93,6 @@ export class ChartManager {
           max: options.yMax || 1.05,
           ticks: {
             stepSize: 0.5,
-            callback: function (value) {
-              // Special handling for flipped charts (like sine wave)
-              if (options.flipYLabels) {
-                if (Math.abs(value + 1) < 0.11) return "1";
-                if (Math.abs(value) < 0.11) return "0";
-                if (Math.abs(value - 1) < 0.11) return "-1";
-                return "";
-              } else {
-                if (Math.abs(value + 1) < 0.11) return "-1";
-                if (Math.abs(value) < 0.11) return "0";
-                if (Math.abs(value - 1) < 0.11) return "1";
-                return "";
-              }
-            },
           },
           grid: {
             drawBorder: true,
@@ -132,6 +112,28 @@ export class ChartManager {
       defaultOptions,
       options.chartOptions || {}
     );
+
+    // Add the Y-axis callback after merge to ensure it's not overwritten
+    chartOptions.scales.y.ticks.callback = (value) => {
+      value =
+        Math.abs(value) < 0.06
+          ? 0
+          : Math.abs(value + 1) < 0.06
+          ? -1
+          : Math.abs(value - 1) < 0.06
+          ? 1
+          : value;
+      value = options.flipYLabels ? -value : value;
+      return value.toString();
+    };
+
+    // Add the x-axis callback after merge to ensure it's not overwritten
+    chartOptions.scales.x.ticks.callback = (value) => {
+      if (Math.abs(value + Math.PI) < 0.001) return "-π";
+      if (Math.abs(value) < 0.001) return "0";
+      if (Math.abs(value - Math.PI) < 0.001) return "π";
+      return "";
+    };
 
     this.charts[canvasId] = new Chart(ctx, {
       type: "line",
