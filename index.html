@@ -15,6 +15,12 @@
             /* Ensures at least 2 full plots visible */
             --small-mobile-chart-divisor: 2.5;
             /* Ensures at least 2.5 full plots visible */
+
+            /* Chart color variables for consistency */
+            --color-orange: #ff7f0e;
+            --color-blue: #1f77b4;
+            --color-green: #2ca02c;
+            --color-red: #d62728;
         }
 
         body {
@@ -154,6 +160,39 @@
             margin: 0;
         }
 
+        /* Semantic text highlighting classes */
+        .phase-shifted {
+            color: var(--color-orange);
+            font-weight: bold;
+        }
+
+        .cosine-component {
+            color: var(--color-blue);
+            font-weight: bold;
+        }
+
+        .sine-component {
+            color: var(--color-green);
+            font-weight: bold;
+        }
+
+        .decomposed-sum {
+            color: var(--color-red);
+            font-weight: bold;
+        }
+
+        /* Ensure accessibility with subtle underlines */
+        .phase-shifted,
+        .cosine-component,
+        .sine-component,
+        .decomposed-sum {
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 2px;
+            text-decoration-color: currentColor;
+            text-decoration-thickness: 1px;
+        }
+
         /* Media query for very narrow screens - allow vertical scrolling but keep slider fixed */
         @media (max-width: 664px) {
             body {
@@ -263,11 +302,14 @@
     <div class="main-container">
         <div class="header">
             <h1>Cosine-Sine Decomposition</h1>
-            <p><strong>Formula:</strong> cos(t + φ) = cos(φ)cos(t) - sin(φ)sin(t)</p>
-            <p>This shows how a <strong>phase-shifted cosine</strong> (orange) can be decomposed into the sum of two
+            <p>This shows how a <span class="phase-shifted">phase-shifted cosine</span> can be decomposed into the sum
+                of two
                 components:
-                a <strong>scaled cosine</strong> (blue) and a <strong>scaled sine</strong> (green). The red dashed line
+                a <span class="cosine-component">scaled cosine</span> and a <span class="sine-component">scaled
+                    sine</span>. The <span class="decomposed-sum">red dashed line</span>
                 proves they sum to the original.</p>
+            <p><strong>Formula:</strong> <span class="phase-shifted">cos(t + φ)</span> = <span
+                    class="cosine-component">cos(φ)cos(t)</span> - <span class="sine-component">sin(φ)sin(t)</span></p>
         </div>
 
         <div class="charts-section">
@@ -576,8 +618,8 @@
                         {
                             label: 'e^(iφ) = cos(φ) + i·sin(φ)',
                             data: [{ x: realPart, y: imagPart }],
-                            borderColor: 'red',
-                            backgroundColor: 'red',
+                            borderColor: 'orange',
+                            backgroundColor: 'orange',
                             borderWidth: 2,
                             pointRadius: 8,
                             showLine: false,
