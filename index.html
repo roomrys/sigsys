@@ -7,6 +7,16 @@
     <title>Cosine-Sine Decomposition</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --header-max-height: 20vh;
+            --mobile-controls-space: 90px;
+            /* Controls height + padding + gaps */
+            --mobile-chart-divisor: 2.2;
+            /* Ensures at least 2 full plots visible */
+            --small-mobile-chart-divisor: 2.5;
+            /* Ensures at least 2.5 full plots visible */
+        }
+
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -29,7 +39,7 @@
         .header {
             flex-shrink: 0;
             margin-bottom: 8px;
-            max-height: 20vh;
+            max-height: var(--header-max-height);
             /* Limit header to 20% of viewport height */
             overflow: hidden;
         }
@@ -57,18 +67,36 @@
         }
 
         .left-charts {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 8px;
             min-height: 0;
         }
 
+        .left-charts .chart-item:first-child {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .left-charts .complex-chart-item {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+        }
+
+        .left-charts .chart-item:nth-child(3) {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .left-charts .chart-item:nth-child(4) {
+            grid-column: 1;
+            grid-row: 3;
+        }
+
         .right-charts {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
+            display: none;
         }
 
         .chart-item {
@@ -89,10 +117,9 @@
             flex: 1;
             width: 95%;
             margin: 0 auto;
-            aspect-ratio: 1 / 1;
-            /* Force square aspect ratio */
             max-width: 100%;
             max-height: 100%;
+            /* Remove CSS aspect-ratio to let Chart.js handle it */
         }
 
         .chart-item h2 {
@@ -163,25 +190,38 @@
             .left-charts {
                 flex: none;
                 height: auto;
-                /* Allow natural height */
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+                /* Override grid layout for mobile */
+            }
+
+            .left-charts .chart-item:first-child,
+            .left-charts .complex-chart-item,
+            .left-charts .chart-item:nth-child(3),
+            .left-charts .chart-item:nth-child(4) {
+                grid-column: unset;
+                grid-row: unset;
             }
 
             .right-charts {
-                flex: none;
-                height: auto;
-                /* Allow natural height */
+                display: none;
             }
 
             .chart-item {
-                height: 300px;
-                /* Fixed height for each chart */
-                min-height: 300px;
+                height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
+                /* Ensure at least 2 full plots visible */
+                min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
+                max-height: 300px;
+                /* Cap maximum height for very tall screens */
             }
 
             .complex-chart-item {
-                height: 300px;
-                /* Fixed height for complex chart */
-                min-height: 300px;
+                height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
+                /* Ensure at least 2 full plots visible */
+                min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
+                max-height: 300px;
+                /* Cap maximum height for very tall screens */
             }
 
             .controls {
@@ -195,6 +235,25 @@
                 margin: 0;
                 z-index: 1000;
                 box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        /* Media query for very small screens - ensure 2.5 plots visible */
+        @media (max-width: 480px) {
+            .chart-item {
+                height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
+                /* Ensure at least 2.5 full plots visible on small screens */
+                min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
+                max-height: 250px;
+                /* Cap maximum height */
+            }
+
+            .complex-chart-item {
+                height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
+                /* Ensure at least 2.5 full plots visible */
+                min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
+                max-height: 250px;
+                /* Cap maximum height */
             }
         }
     </style>
@@ -219,6 +278,13 @@
                         <canvas id="phaseShiftedCosineChart"></canvas>
                     </div>
                 </div>
+                <div class="complex-chart-item">
+                    <h2 id="complexPlaneTitle">Complex Representation</h2>
+                    <p style="font-size: 0.8em; margin: 0 0 5px 0;">e^(iφ) = cos(φ) + i·sin(φ)</p>
+                    <div class="chart-container">
+                        <canvas id="complexPlaneChart"></canvas>
+                    </div>
+                </div>
                 <div class="chart-item">
                     <h2 id="nonPhaseShiftedCosineTitle">cos(φ)cos(t)</h2>
                     <div class="chart-container">
@@ -233,13 +299,7 @@
                 </div>
             </div>
             <div class="right-charts">
-                <div class="complex-chart-item">
-                    <h2 id="complexPlaneTitle">Complex Representation</h2>
-                    <p style="font-size: 0.8em; margin: 0 0 5px 0;">e^(iφ) = cos(φ) + i·sin(φ)</p>
-                    <div class="chart-container">
-                        <canvas id="complexPlaneChart"></canvas>
-                    </div>
-                </div>
+                <!-- Empty - all charts moved to left column for better mobile ordering -->
             </div>
         </div>
 
@@ -432,7 +492,14 @@
                 charts['complexPlaneChart'].destroy();
             }
 
-            const ctx = document.getElementById('complexPlaneChart').getContext('2d');
+            const canvas = document.getElementById('complexPlaneChart');
+            const container = canvas.parentElement;
+
+            // Force the container to be square based on its current width
+            const containerWidth = container.offsetWidth;
+            container.style.height = containerWidth + 'px';
+
+            const ctx = canvas.getContext('2d');
 
             // Single point representing cos(φ) + i·sin(φ)
             const realPart = Math.cos(phaseShift);
@@ -520,8 +587,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 1,
+                    maintainAspectRatio: false,
                     animation: false,
                     plugins: {
                         legend: {
