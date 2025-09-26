@@ -1,84 +1,52 @@
-// Main application logic and initialization
+// Main application logic and initialization using the new modular architecture
 
-function updateTitles(phaseShift) {
-  const phaseStr = formatPhaseShift(phaseShift);
-  const cosPhase = Math.cos(phaseShift).toFixed(3);
-  const sinPhase = (-Math.sin(phaseShift)).toFixed(3);
-  const sinPhaseFlipped = Math.sin(phaseShift).toFixed(3); // Flipped for visual consistency
+import { PhaseShiftVisualizer } from "./visualizers/PhaseShiftVisualizer.js";
+import { CONFIG } from "./config.js";
 
-  document.getElementById(
-    "phaseShiftedCosineTitle"
-  ).textContent = `cos(t + ${phaseStr})`;
-  document.getElementById(
-    "nonPhaseShiftedCosineTitle"
-  ).textContent = `${cosPhase}cos(t)`;
-  document.getElementById(
-    "sineWaveTitle"
-  ).textContent = `${sinPhaseFlipped}sin(t)`;
-}
+// Global visualizer instance
+let phaseShiftVisualizer = null;
 
-function updateChartsForPhaseShift(phaseShift) {
-  // Calculate waveforms
-  const waveforms = calculateWaveforms(CONFIG.labels, phaseShift);
-
-  // Update titles and slider display
-  updateTitles(phaseShift);
-  const phaseShiftValue = document.getElementById("phaseShiftValue");
-  phaseShiftValue.textContent = formatPhaseShift(phaseShift);
-
-  // Create additional dataset for decomposed sum
-  const decomposedSumDataset = {
-    label: "Decomposed Sum",
-    data: CONFIG.labels.map((x, i) => ({
-      x: x,
-      y: waveforms.decomposedSum[i],
-    })),
-    borderColor: CONFIG.colors.red,
-    borderWidth: 5,
-    borderDash: [5, 5],
-    fill: false,
+/**
+ * Initialize the phase shift visualization application
+ */
+function initializeApp() {
+  // Create configuration object based on existing CONFIG
+  const config = {
+    timeRange: {
+      start: CONFIG.labels[0],
+      end: CONFIG.labels[CONFIG.labels.length - 1],
+      points: CONFIG.labels.length,
+    },
+    initialPhaseShift: CONFIG.initialPhaseShift,
+    phaseStep: CONFIG.phaseStep,
+    legendVisible: CONFIG.legendVisible,
+    colors: CONFIG.colors,
+    elements: {
+      phaseShiftSlider: "phaseShiftSlider",
+      phaseShiftValue: "phaseShiftValue",
+    },
   };
 
-  // Create all charts
-  createChart(
-    "phaseShiftedCosineChart",
-    "Phase-Shifted Cosine",
-    waveforms.phaseShiftedCosine,
-    CONFIG.colors.orange,
-    [decomposedSumDataset]
-  );
-  createChart(
-    "nonPhaseShiftedCosineChart",
-    "Non-Phase-Shifted Cosine",
-    waveforms.nonPhaseShiftedCosine,
-    CONFIG.colors.blue
-  );
-  createChart(
-    "sineWaveChart",
-    "Sine Wave",
-    waveforms.sineWave,
-    CONFIG.colors.green
-  );
-  createComplexPlaneChart(phaseShift);
+  // Create and initialize the visualizer
+  phaseShiftVisualizer = new PhaseShiftVisualizer(config);
+  phaseShiftVisualizer.initialize();
 }
 
-function initializeApp() {
-  // Get DOM elements
-  const phaseShiftSlider = document.getElementById("phaseShiftSlider");
-
-  // Set the slider maximum to exactly 2π and step to π/100
-  phaseShiftSlider.step = CONFIG.phaseStep;
-  phaseShiftSlider.max = 2 * Math.PI + CONFIG.phaseStep; // Add a small step to include 2π
-
-  // Initialize charts with initial phase shift
-  updateChartsForPhaseShift(CONFIG.initialPhaseShift);
-
-  // Add event listener for slider
-  phaseShiftSlider.addEventListener("input", () => {
-    const newPhaseShift = parseFloat(phaseShiftSlider.value);
-    updateChartsForPhaseShift(newPhaseShift);
-  });
+/**
+ * Clean up resources when the page is unloaded
+ */
+function cleanup() {
+  if (phaseShiftVisualizer) {
+    phaseShiftVisualizer.destroy();
+    phaseShiftVisualizer = null;
+  }
 }
 
 // Initialize the application when DOM is loaded
 document.addEventListener("DOMContentLoaded", initializeApp);
+
+// Clean up when page is unloaded
+window.addEventListener("beforeunload", cleanup);
+
+// Export for potential use by other modules
+export { phaseShiftVisualizer };
