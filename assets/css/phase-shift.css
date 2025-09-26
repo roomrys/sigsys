@@ -1,19 +1,69 @@
-@import url("./variables.css");
+/* Phase Shift Visualizer Specific Styles */
+@import url(./variables.css);
+@import url('./shared.css');
 
-/* Media query for very narrow screens - allow vertical scrolling but keep slider fixed */
+/* Phase shift grid layout */
+.charts-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 8px;
+    min-height: 0;
+}
+
+.charts-grid .chart-item:first-child {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.charts-grid .complex-chart-item {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+
+.charts-grid .chart-item:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.charts-grid .chart-item:nth-child(4) {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+/* Phase shift semantic colors */
+.phase-shifted {
+    color: var(--color-orange);
+    font-weight: bold;
+}
+
+.cosine-component {
+    color: var(--color-blue);
+    font-weight: bold;
+}
+
+.sine-component {
+    color: var(--color-green);
+    font-weight: bold;
+}
+
+.decomposed-sum {
+    color: var(--color-red);
+    font-weight: bold;
+}
+
+/* Responsive behavior */
 @media (max-width: 664px) {
     body {
         overflow-y: auto;
-        /* Allow vertical scrolling */
         overflow-x: hidden;
     }
 
     .main-container {
         height: auto;
-        /* Don't constrain to viewport height */
         min-height: 100vh;
         padding: 5px 5px 70px 5px;
-        /* Add bottom padding for fixed slider */
     }
 
     .header {
@@ -24,9 +74,7 @@
         gap: 3px;
         flex: none;
         flex-direction: column;
-        /* Don't use flex sizing */
         height: auto;
-        /* Allow natural height */
     }
 
     .charts-grid {
@@ -35,7 +83,6 @@
         display: flex;
         flex-direction: column;
         gap: 3px;
-        /* Override grid layout for mobile */
     }
 
     .charts-grid .chart-item:first-child,
@@ -48,18 +95,14 @@
 
     .chart-item {
         height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
-        /* Ensure at least 2 full plots visible */
         min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
         max-height: 300px;
-        /* Cap maximum height for very tall screens */
     }
 
     .complex-chart-item {
         height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
-        /* Ensure at least 2 full plots visible */
         min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
         max-height: 300px;
-        /* Cap maximum height for very tall screens */
     }
 
     .controls {
@@ -76,21 +119,16 @@
     }
 }
 
-/* Media query for very small screens - ensure 2.5 plots visible */
 @media (max-width: 480px) {
     .chart-item {
         height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
-        /* Ensure at least 2.5 full plots visible on small screens */
         min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
         max-height: 250px;
-        /* Cap maximum height */
     }
 
     .complex-chart-item {
         height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
-        /* Ensure at least 2.5 full plots visible */
         min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
         max-height: 250px;
-        /* Cap maximum height */
     }
 }
