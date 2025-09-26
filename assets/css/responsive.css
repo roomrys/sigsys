@@ -29,7 +29,7 @@
         /* Allow natural height */
     }
 
-    .left-charts {
+    .charts-grid {
         flex: none;
         height: auto;
         display: flex;
@@ -38,16 +38,12 @@
         /* Override grid layout for mobile */
     }
 
-    .left-charts .chart-item:first-child,
-    .left-charts .complex-chart-item,
-    .left-charts .chart-item:nth-child(3),
-    .left-charts .chart-item:nth-child(4) {
+    .charts-grid .chart-item:first-child,
+    .charts-grid .complex-chart-item,
+    .charts-grid .chart-item:nth-child(3),
+    .charts-grid .chart-item:nth-child(4) {
         grid-column: unset;
         grid-row: unset;
-    }
-
-    .right-charts {
-        display: none;
     }
 
     .chart-item {
