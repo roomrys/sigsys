@@ -308,33 +308,34 @@
                 a <span class="cosine-component">scaled cosine</span> and a <span class="sine-component">scaled
                     sine</span>. The <span class="decomposed-sum">red dashed line</span>
                 proves they sum to the original.</p>
-            <p><strong>Formula:</strong> <span class="phase-shifted">cos(t + φ)</span> = <span
-                    class="cosine-component">cos(φ)cos(t)</span> - <span class="sine-component">sin(φ)sin(t)</span></p>
+            <p><strong>Formula:</strong> <span class="phase-shifted">cos(t + Φ)</span> = <span
+                    class="cosine-component">cos(Φ)cos(t)</span> - <span class="sine-component">sin(Φ)sin(t)</span></p>
         </div>
 
         <div class="charts-section">
             <div class="left-charts">
                 <div class="chart-item">
-                    <h2 id="phaseShiftedCosineTitle">cos(t + φ)</h2>
+                    <h2 id="phaseShiftedCosineTitle">cos(t + Φ)</h2>
                     <div class="chart-container">
                         <canvas id="phaseShiftedCosineChart"></canvas>
                     </div>
                 </div>
                 <div class="complex-chart-item">
                     <h2 id="complexPlaneTitle">Complex Representation</h2>
-                    <p style="font-size: 0.8em; margin: 0 0 5px 0;">e^(iφ) = cos(φ) + i·sin(φ)</p>
+                    <p style="font-size: 0.8em; margin: 0 0 5px 0;">e^(iΦ) = <span
+                            class="cosine-component">cos(Φ)</span> + i·<span class="sine-component">sin(Φ)</span></p>
                     <div class="chart-container">
                         <canvas id="complexPlaneChart"></canvas>
                     </div>
                 </div>
                 <div class="chart-item">
-                    <h2 id="nonPhaseShiftedCosineTitle">cos(φ)cos(t)</h2>
+                    <h2 id="nonPhaseShiftedCosineTitle">cos(Φ)cos(t)</h2>
                     <div class="chart-container">
                         <canvas id="nonPhaseShiftedCosineChart"></canvas>
                     </div>
                 </div>
                 <div class="chart-item">
-                    <h2 id="sineWaveTitle">-sin(φ)sin(t)</h2>
+                    <h2 id="sineWaveTitle">-sin(Φ)sin(t)</h2>
                     <div class="chart-container">
                         <canvas id="sineWaveChart"></canvas>
                     </div>
@@ -347,7 +348,7 @@
 
         <div class="controls">
             <div style="margin-bottom: 10px;">
-                <label for="phaseShiftSlider">Phase Shift (φ): </label>
+                <label for="phaseShiftSlider">Phase Shift (Φ): </label>
                 <input type="range" id="phaseShiftSlider" min="0" value="0.785">
                 <span id="phaseShiftValue">π/4</span>
                 <span style="font-size: 0.8em; margin-left: 10px; color: #666;">← Drag to see how the decomposition
@@ -398,10 +399,11 @@
             const phaseStr = formatPhaseShift(phaseShift);
             const cosPhase = Math.cos(phaseShift).toFixed(3);
             const sinPhase = (-Math.sin(phaseShift)).toFixed(3);
+            const sinPhaseFlipped = (Math.sin(phaseShift)).toFixed(3); // Flipped for visual consistency
 
             document.getElementById('phaseShiftedCosineTitle').textContent = `cos(t + ${phaseStr})`;
             document.getElementById('nonPhaseShiftedCosineTitle').textContent = `${cosPhase}cos(t)`;
-            document.getElementById('sineWaveTitle').textContent = `${sinPhase}sin(t)`;
+            document.getElementById('sineWaveTitle').textContent = `${sinPhaseFlipped}sin(t)`;
         }
 
         function createChart(canvasId, label, data, borderColor, additionalDatasets = []) {
@@ -490,10 +492,18 @@
                             ticks: {
                                 stepSize: 0.5,
                                 callback: function (value) {
-                                    if (Math.abs(value + 1) < 0.11) return '-1';
-                                    if (Math.abs(value) < 0.11) return '0';
-                                    if (Math.abs(value - 1) < 0.11) return '1';
-                                    return '';
+                                    // Flip labels for sine chart to make negative values appear positive
+                                    if (canvasId === 'sineWaveChart') {
+                                        if (Math.abs(value + 1) < 0.11) return '1';
+                                        if (Math.abs(value) < 0.11) return '0';
+                                        if (Math.abs(value - 1) < 0.11) return '-1';
+                                        return '';
+                                    } else {
+                                        if (Math.abs(value + 1) < 0.11) return '-1';
+                                        if (Math.abs(value) < 0.11) return '0';
+                                        if (Math.abs(value - 1) < 0.11) return '1';
+                                        return '';
+                                    }
                                 }
                             },
                             grid: {
@@ -543,7 +553,7 @@
 
             const ctx = canvas.getContext('2d');
 
-            // Single point representing cos(φ) + i·sin(φ)
+            // Single point representing cos(Φ) + i·sin(Φ)
             const realPart = Math.cos(phaseShift);
             const imagPart = Math.sin(phaseShift);
 
@@ -616,7 +626,7 @@
                             fill: false
                         },
                         {
-                            label: 'e^(iφ) = cos(φ) + i·sin(φ)',
+                            label: 'e^(iΦ) = cos(Φ) + i·sin(Φ)',
                             data: [{ x: realPart, y: imagPart }],
                             borderColor: 'orange',
                             backgroundColor: 'orange',
@@ -641,7 +651,7 @@
                         x: {
                             title: {
                                 display: true,
-                                text: 'Real (cos(φ))'
+                                text: 'Real (cos(Φ))'
                             },
                             min: -1.2,
                             max: 1.2,
@@ -654,7 +664,7 @@
                         y: {
                             title: {
                                 display: true,
-                                text: 'Imaginary (sin(φ))'
+                                text: 'Imaginary (sin(Φ))'
                             },
                             min: -1.2,
                             max: 1.2,
