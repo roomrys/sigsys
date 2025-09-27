@@ -14,11 +14,11 @@ let currentVisualizer = null;
  */
 function detectVisualizerType() {
   const path = window.location.pathname;
-  const filename = path.split("/").pop() || "index.html";
+  const filename = path.split("/").pop();
 
   if (filename === "integral.html") {
     return "integral";
-  } else if (filename === "index.html" || filename === "") {
+  } else if (filename === "phase-shift.html") {
     return "phase-shift";
   }
 
