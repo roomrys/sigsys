@@ -17,10 +17,20 @@ The repository currently includes a visualization tool for decomposing a shifted
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/sigsys.git
+   git clone https://github.com/roomrys/sigsys.git
    ```
 
-2. Open sigsys/index.html in your browser.
+2. Start a local server:
+
+   ```bash
+   python3 -m http.server 8000
+   ```
+
+3. Browse to:
+
+   ```bash
+   http://[::]:8000/
+   ```
 
 ## Future Plans
 

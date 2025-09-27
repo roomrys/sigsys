@@ -4,78 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosine-Sine Decomposition</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Signals and Systems</title>
     <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/landing.css">
 </head>
 
 <body>
-    <div class="main-container">
-        <div class="header">
-            <h1>Cosine-Sine Decomposition</h1>
-            <p>This shows how a <span class="phase-shifted">phase-shifted cosine</span> can be decomposed into the sum
-                of two
-                components:
-                a <span class="cosine-component">scaled cosine</span> and a <span class="sine-component">scaled
-                    sine</span>. The <span class="decomposed-sum">red dashed line</span>
-                proves they sum to the original.</p>
-            <p><strong>Formula:</strong> <span class="phase-shifted">cos(t + Φ)</span> = <span
-                    class="cosine-component">cos(Φ)cos(t)</span> - <span class="sine-component">sin(Φ)sin(t)</span></p>
+    <div class="landing-container">
+        <div class="landing-header">
+            <h1>Signals and Systems</h1>
+            <p>Interactive visualizations for understanding fundamental concepts in signal processing and systems theory
+            </p>
         </div>
 
-        <div class="charts-section">
-            <div class="charts-grid">
-                <div class="chart-item">
-                    <h2 id="phaseShiftedCosineTitle">cos(t + Φ)</h2>
-                    <div class="chart-container">
-                        <canvas id="phaseShiftedCosineChart"></canvas>
-                    </div>
-                </div>
-                <div class="complex-chart-item">
-                    <h2 id="complexPlaneTitle">Complex Representation</h2>
-                    <p style="font-size: 0.8em; margin: 0 0 5px 0;">e^(iΦ) = <span
-                            class="cosine-component">cos(Φ)</span> + i·<span class="sine-component">sin(Φ)</span></p>
-                    <div class="chart-container">
-                        <canvas id="complexPlaneChart"></canvas>
-                    </div>
-                </div>
-                <div class="chart-item">
-                    <h2 id="nonPhaseShiftedCosineTitle">cos(Φ)cos(t)</h2>
-                    <div class="chart-container">
-                        <canvas id="nonPhaseShiftedCosineChart"></canvas>
-                    </div>
-                </div>
-                <div class="chart-item">
-                    <h2 id="sineWaveTitle">-sin(Φ)sin(t)</h2>
-                    <div class="chart-container">
-                        <canvas id="sineWaveChart"></canvas>
-                    </div>
-                </div>
-            </div>
+        <div class="demos-grid">
+            <a href="./phase-shift.html" class="demo-card">
+                <img src="./assets/favicon.svg" alt="Phase Shift Demo" class="demo-icon">
+                <h2>Cosine-Sine Decomposition</h2>
+                <p>Explore how a phase-shifted cosine can be decomposed into scaled cosine and sine components.
+                    Interactive visualization of the trigonometric identity.</p>
+            </a>
+
+            <a href="./integral.html" class="demo-card">
+                <img src="./assets/integral.svg" alt="Integral Demo" class="demo-icon">
+                <h2>Cosine-Sine Extraction</h2>
+                <p>Discover how integration can extract frequency components from composite signals. Interactive
+                    demonstration of Fourier analysis principles.</p>
+            </a>
         </div>
 
-        <div class="controls">
-            <div style="margin-bottom: 10px;">
-                <label for="phaseShiftSlider">Phase Shift (Φ): </label>
-                <input type="range" id="phaseShiftSlider" min="0" value="0.785">
-                <span id="phaseShiftValue">π/4</span>
-                <span style="font-size: 0.8em; margin-left: 10px; color: #666;">← Drag to see how the decomposition
-                    changes</span>
-            </div>
-        </div>
-
-        <!-- GitHub link in bottom right corner -->
-        <a href="https://github.com/roomrys/sigsys" class="github-link" target="_blank" rel="noopener noreferrer">
-            <img src="./assets/github.svg" alt="View on GitHub" class="github-icon">
+        <a href="https://github.com/roomrys/sigsys" class="github-footer" target="_blank" rel="noopener noreferrer">
+            <img src="./assets/github.svg" alt="View on GitHub">
         </a>
     </div>
-
-    <!-- JavaScript files in dependency order -->
-    <script src="./assets/js/config.js"></script>
-    <script src="./assets/js/math.js"></script>
-    <script src="./assets/js/charts.js"></script>
-    <script src="./assets/js/main.js"></script>
 </body>
 
 </html>

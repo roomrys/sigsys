@@ -1,5 +1,5 @@
 // Configuration and constants
-const CONFIG = {
+export const CONFIG = {
   labels: Array.from(
     { length: 100 },
     (_, i) => -Math.PI + i * ((2 * Math.PI) / 99)
@@ -26,6 +26,6 @@ const CONFIG = {
   },
 };
 
-// Global state
-let charts = {};
-let datasetVisibility = {};
+// Global state (legacy - will be removed in future refactoring)
+export let charts = {};
+export let datasetVisibility = {};

@@ -1,84 +1,231 @@
-// Main application logic and initialization
+// Main application logic and initialization using factory pattern and configuration-driven approach
 
-function updateTitles(phaseShift) {
-  const phaseStr = formatPhaseShift(phaseShift);
-  const cosPhase = Math.cos(phaseShift).toFixed(3);
-  const sinPhase = (-Math.sin(phaseShift)).toFixed(3);
-  const sinPhaseFlipped = Math.sin(phaseShift).toFixed(3); // Flipped for visual consistency
+import { VisualizerFactory } from "./visualizers/VisualizerFactory.js";
+import { ConfigTemplates } from "./config/ConfigTemplates.js";
+import { ConfigValidator } from "./config/ConfigValidator.js";
+import { CONFIG } from "./config.js";
 
-  document.getElementById(
-    "phaseShiftedCosineTitle"
-  ).textContent = `cos(t + ${phaseStr})`;
-  document.getElementById(
-    "nonPhaseShiftedCosineTitle"
-  ).textContent = `${cosPhase}cos(t)`;
-  document.getElementById(
-    "sineWaveTitle"
-  ).textContent = `${sinPhaseFlipped}sin(t)`;
+// Global visualizer instance
+let currentVisualizer = null;
+
+/**
+ * Detect which page we're on and return the appropriate visualizer type
+ * @returns {string} Visualizer type
+ */
+function detectVisualizerType() {
+  const path = window.location.pathname;
+  const filename = path.split("/").pop();
+
+  if (filename === "integral.html") {
+    return "integral";
+  } else if (filename === "phase-shift.html") {
+    return "phase-shift";
+  }
+
+  // Default fallback
+  return "phase-shift";
 }
 
-function updateChartsForPhaseShift(phaseShift) {
-  // Calculate waveforms
-  const waveforms = calculateWaveforms(CONFIG.labels, phaseShift);
+/**
+ * Application configuration - automatically detects visualizer type based on page
+ */
+const APP_CONFIG = {
+  // Automatically detect visualizer type based on current page
+  get visualizerType() {
+    return detectVisualizerType();
+  },
 
-  // Update titles and slider display
-  updateTitles(phaseShift);
-  const phaseShiftValue = document.getElementById("phaseShiftValue");
-  phaseShiftValue.textContent = formatPhaseShift(phaseShift);
+  // Override default configuration if needed
+  configOverrides: {
+    // Use legacy CONFIG for backward compatibility
+    timeRange: {
+      start: CONFIG.labels[0],
+      end: CONFIG.labels[CONFIG.labels.length - 1],
+      points: CONFIG.labels.length,
+    },
+    initialPhaseShift: CONFIG.initialPhaseShift,
+    phaseStep: CONFIG.phaseStep,
+    legendVisible: CONFIG.legendVisible,
+    colors: CONFIG.colors,
+    elements: {
+      phaseShiftSlider: "phaseShiftSlider",
+      phaseShiftValue: "phaseShiftValue",
+    },
+  },
 
-  // Create additional dataset for decomposed sum
-  const decomposedSumDataset = {
-    label: "Decomposed Sum",
-    data: CONFIG.labels.map((x, i) => ({
-      x: x,
-      y: waveforms.decomposedSum[i],
-    })),
-    borderColor: CONFIG.colors.red,
-    borderWidth: 5,
-    borderDash: [5, 5],
-    fill: false,
-  };
+  // Error handling configuration
+  errorHandling: {
+    showErrorMessages: true,
+    fallbackToConsole: true,
+    retryOnFailure: false,
+  },
+};
 
-  // Create all charts
-  createChart(
-    "phaseShiftedCosineChart",
-    "Phase-Shifted Cosine",
-    waveforms.phaseShiftedCosine,
-    CONFIG.colors.orange,
-    [decomposedSumDataset]
-  );
-  createChart(
-    "nonPhaseShiftedCosineChart",
-    "Non-Phase-Shifted Cosine",
-    waveforms.nonPhaseShiftedCosine,
-    CONFIG.colors.blue
-  );
-  createChart(
-    "sineWaveChart",
-    "Sine Wave",
-    waveforms.sineWave,
-    CONFIG.colors.green
-  );
-  createComplexPlaneChart(phaseShift);
-}
-
+/**
+ * Initialize the visualization application using factory pattern
+ */
 function initializeApp() {
-  // Get DOM elements
-  const phaseShiftSlider = document.getElementById("phaseShiftSlider");
+  try {
+    // Log detected page type for debugging
+    console.log(`Detected page type: ${APP_CONFIG.visualizerType}`);
 
-  // Set the slider maximum to exactly 2π and step to π/100
-  phaseShiftSlider.step = CONFIG.phaseStep;
-  phaseShiftSlider.max = 2 * Math.PI + CONFIG.phaseStep; // Add a small step to include 2π
+    // Get the appropriate configuration template
+    const config = createVisualizerConfig(
+      APP_CONFIG.visualizerType,
+      APP_CONFIG.configOverrides
+    );
 
-  // Initialize charts with initial phase shift
-  updateChartsForPhaseShift(CONFIG.initialPhaseShift);
+    // Validate the configuration
+    const validation = ConfigValidator.validate(
+      config,
+      APP_CONFIG.visualizerType
+    );
+    if (!validation.valid) {
+      throw new Error(
+        `Configuration validation failed: ${validation.errors.join(", ")}`
+      );
+    }
 
-  // Add event listener for slider
-  phaseShiftSlider.addEventListener("input", () => {
-    const newPhaseShift = parseFloat(phaseShiftSlider.value);
-    updateChartsForPhaseShift(newPhaseShift);
-  });
+    // Create visualizer using factory
+    currentVisualizer = VisualizerFactory.create(
+      APP_CONFIG.visualizerType,
+      validation.config
+    );
+
+    // Initialize the visualizer
+    currentVisualizer.initialize();
+
+    console.log(`Successfully initialized ${currentVisualizer._factoryName}`);
+  } catch (error) {
+    handleInitializationError(error);
+  }
+}
+
+/**
+ * Create visualizer configuration with validation
+ * @param {string} type - Visualizer type
+ * @param {Object} overrides - Configuration overrides
+ * @returns {Object} Complete configuration
+ */
+function createVisualizerConfig(type, overrides = {}) {
+  try {
+    // Start with the appropriate template
+    let config;
+    switch (type) {
+      case "phase-shift":
+        config = ConfigTemplates.getPhaseShiftConfig(overrides);
+        break;
+      case "integral":
+        config = ConfigTemplates.getIntegralConfig(overrides);
+        break;
+      case "fourier":
+        config = ConfigTemplates.getFourierConfig(overrides);
+        break;
+      case "frequency-domain":
+        config = ConfigTemplates.getFrequencyDomainConfig(overrides);
+        break;
+      default:
+        // Fallback to phase-shift with legacy CONFIG
+        console.warn(
+          `Unknown visualizer type: ${type}. Falling back to phase-shift.`
+        );
+        config = ConfigTemplates.fromLegacyConfig(CONFIG);
+        break;
+    }
+
+    return config;
+  } catch (error) {
+    console.error("Failed to create configuration:", error);
+    // Ultimate fallback
+    return ConfigTemplates.fromLegacyConfig(CONFIG);
+  }
+}
+
+/**
+ * Handle initialization errors gracefully
+ * @param {Error} error - The error that occurred
+ */
+function handleInitializationError(error) {
+  const errorMessage = `Failed to initialize visualizer: ${error.message}`;
+
+  console.error(errorMessage, error);
+
+  if (APP_CONFIG.errorHandling.showErrorMessages) {
+    // Try to show error in UI if possible
+    const errorContainer = document.getElementById("error-message");
+    if (errorContainer) {
+      errorContainer.innerHTML = `
+        <div style="color: red; background: #ffe6e6; border: 1px solid red; padding: 10px; margin: 10px 0; border-radius: 4px;">
+          <strong>Initialization Error:</strong> ${error.message}
+          <br><small>Check the console for more details.</small>
+        </div>
+      `;
+      errorContainer.style.display = "block";
+    }
+  }
+
+  // Try fallback initialization
+  if (
+    APP_CONFIG.errorHandling.retryOnFailure &&
+    APP_CONFIG.visualizerType !== "phase-shift"
+  ) {
+    console.log("Attempting fallback to phase-shift visualizer...");
+    APP_CONFIG.visualizerType = "phase-shift";
+    APP_CONFIG.errorHandling.retryOnFailure = false; // Prevent infinite retry
+    initializeApp();
+  }
+}
+
+/**
+ * Switch to a different visualizer type dynamically
+ * @param {string} newType - New visualizer type
+ * @param {Object} configOverrides - Optional configuration overrides
+ */
+function switchVisualizer(newType, configOverrides = {}) {
+  try {
+    // Clean up current visualizer
+    if (currentVisualizer) {
+      currentVisualizer.destroy();
+      currentVisualizer = null;
+    }
+
+    // Update configuration
+    APP_CONFIG.visualizerType = newType;
+    APP_CONFIG.configOverrides = {
+      ...APP_CONFIG.configOverrides,
+      ...configOverrides,
+    };
+
+    // Initialize new visualizer
+    initializeApp();
+  } catch (error) {
+    handleInitializationError(error);
+  }
+}
+
+/**
+ * Get information about available visualizers
+ * @returns {Object} Available visualizer information
+ */
+function getAvailableVisualizers() {
+  return VisualizerFactory.getVisualizerInfo();
+}
+
+/**
+ * Clean up resources when the page is unloaded
+ */
+function cleanup() {
+  if (currentVisualizer) {
+    currentVisualizer.destroy();
+    currentVisualizer = null;
+  }
 }
 
 // Initialize the application when DOM is loaded
 document.addEventListener("DOMContentLoaded", initializeApp);
+
+// Clean up when page is unloaded
+window.addEventListener("beforeunload", cleanup);
+
+// Export for potential use by other modules
+export { currentVisualizer, switchVisualizer, getAvailableVisualizers };

@@ -1,0 +1,300 @@
+/* Integral Visualizer Specific Styles */
+@import url(./variables.css);
+@import url('./shared.css');
+
+/* Integral grid layout (same as phase-shift) */
+.charts-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 8px;
+    min-height: 0;
+}
+
+.charts-grid .chart-item:first-child {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.charts-grid .complex-chart-item {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+
+.charts-grid .chart-item:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.charts-grid .chart-item:nth-child(4) {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+/* Integral semantic colors (same as phase-shift but adapted for integration) */
+.phase-shifted {
+    color: var(--color-orange);
+    font-weight: bold;
+}
+
+.cosine-component {
+    color: var(--color-blue);
+    font-weight: bold;
+}
+
+.sine-component {
+    color: var(--color-green);
+    font-weight: bold;
+}
+
+.decomposed-sum {
+    color: var(--color-red);
+    font-weight: bold;
+}
+
+/* Integration-specific styling */
+.integration-area {
+    opacity: 0.3;
+}
+
+.integration-line {
+    stroke-width: 2;
+    stroke-dasharray: 5,5;
+}
+
+/* Ensure all parent containers allow glow effects to show */
+.main-container {
+    overflow: visible !important;
+}
+
+.charts-section {
+    overflow: visible !important;
+}
+
+.charts-grid {
+    overflow: visible !important;
+}
+
+/* Ensure chart containers can show glow effects without clipping */
+.chart-item {
+    position: relative;
+    z-index: 10;
+    /* Add extra space around charts for glow effects */
+    padding: 15px;
+    margin: -15px;
+    overflow: visible;
+}
+
+.chart-container {
+    position: relative;
+    z-index: 10;
+    overflow: visible;
+}
+
+/* Lower z-index for controls to allow glow effects to show above */
+.controls {
+    position: relative;
+    z-index: 1;
+    margin-top: 15px; /* Extra space from bottom chart */
+}
+
+/* Discovery Effect Animation - Blue (Cosine) */
+.discovery-glow-blue {
+    animation: discoveryPulseBlue 3s ease-out;
+    border-radius: 8px;
+}
+
+@keyframes discoveryPulseBlue {
+    0% {
+        box-shadow: 0 0 0 rgba(0, 123, 255, 0);
+        border: 2px solid rgba(0, 123, 255, 0);
+        transform: scale(1);
+    }
+    10% {
+        box-shadow: 0 0 40px rgba(0, 123, 255, 1);
+        border: 2px solid rgba(0, 123, 255, 0.8);
+        transform: scale(1.02);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(0, 123, 255, 0.6);
+        border: 2px solid rgba(0, 123, 255, 0.5);
+        transform: scale(1.01);
+    }
+    100% {
+        box-shadow: 0 0 0 rgba(0, 123, 255, 0);
+        border: 2px solid rgba(0, 123, 255, 0);
+        transform: scale(1);
+    }
+}
+
+/* Discovery Effect Animation - Green (Sine) */
+.discovery-glow-green {
+    animation: discoveryPulseGreen 3s ease-out;
+    border-radius: 8px;
+}
+
+@keyframes discoveryPulseGreen {
+    0% {
+        box-shadow: 0 0 0 rgba(40, 167, 69, 0);
+        border: 2px solid rgba(40, 167, 69, 0);
+        transform: scale(1);
+    }
+    10% {
+        box-shadow: 0 0 40px rgba(40, 167, 69, 1);
+        border: 2px solid rgba(40, 167, 69, 0.8);
+        transform: scale(1.02);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(40, 167, 69, 0.6);
+        border: 2px solid rgba(40, 167, 69, 0.5);
+        transform: scale(1.01);
+    }
+    100% {
+        box-shadow: 0 0 0 rgba(40, 167, 69, 0);
+        border: 2px solid rgba(40, 167, 69, 0);
+        transform: scale(1);
+    }
+}
+
+/* Ensure canvas container can show the glow effect */
+.chart-container canvas {
+    transition: all 0.3s ease;
+}
+
+/* Discovery Badge - Base styles */
+.discovery-badge {
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-family: 'Courier New', Consolas, 'Liberation Mono', Monaco, monospace;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    animation: discoveryBadgeAppear 3s ease-out forwards;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Blue discovery badge for cosine */
+.discovery-badge-blue {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: 2px solid rgba(0, 123, 255, 0.8);
+}
+
+/* Green discovery badge for sine */
+.discovery-badge-green {
+    background: linear-gradient(135deg, #28a745, #1e7e34);
+    border: 2px solid rgba(40, 167, 69, 0.8);
+}
+
+@keyframes discoveryBadgeAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.8);
+    }
+    10% {
+        opacity: 1;
+        transform: translateY(0) scale(1.05);
+    }
+    15% {
+        transform: translateY(0) scale(1);
+    }
+    85% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+}
+
+/* Angular frequency styling */
+#angularFrequencyValue {
+    color: #8e44ad;
+    font-family: 'Courier New', Consolas, 'Liberation Mono', Monaco, 'Lucida Console', monospace;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+
+
+/* Responsive behavior (identical to phase-shift) */
+@media (max-width: 664px) {
+    body {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .main-container {
+        height: auto;
+        min-height: 100vh;
+        padding: 5px 5px 70px 5px;
+    }
+
+    .header {
+        margin-bottom: 5px;
+    }
+
+    .charts-section {
+        gap: 3px;
+        flex: none;
+        flex-direction: column;
+        height: auto;
+    }
+
+    .charts-grid {
+        flex: none;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .charts-grid .chart-item:first-child,
+    .charts-grid .complex-chart-item,
+    .charts-grid .chart-item:nth-child(3),
+    .charts-grid .chart-item:nth-child(4) {
+        grid-column: unset;
+        grid-row: unset;
+    }
+
+    .chart-item {
+        height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
+        min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
+        max-height: 300px;
+    }
+
+    .complex-chart-item {
+        height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
+        min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--mobile-chart-divisor));
+        max-height: 300px;
+    }
+
+    .controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid #ddd;
+        padding: 8px;
+        margin: 0;
+        z-index: 1000;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-item {
+        height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
+        min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
+        max-height: 250px;
+    }
+
+    .complex-chart-item {
+        height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
+        min-height: calc((100vh - var(--header-max-height) - var(--mobile-controls-space)) / var(--small-mobile-chart-divisor));
+        max-height: 250px;
+    }
+}
