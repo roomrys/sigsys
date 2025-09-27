@@ -118,6 +118,116 @@ export class ConfigValidator {
         },
       },
     },
+
+    integral: {
+      ...ConfigValidator.baseSchema,
+      initialPhaseShift: {
+        type: "number",
+        default: Math.PI / 4,
+        min: 0,
+        max: 2 * Math.PI,
+      },
+      phaseStep: {
+        type: "number",
+        default: Math.PI / 100,
+        min: 0.001,
+        max: Math.PI,
+      },
+      initialAngularFrequency: {
+        type: "number",
+        default: 1.0,
+        min: 0.1,
+        max: 5.0,
+      },
+      frequencyStep: {
+        type: "number",
+        default: 0.1,
+        min: 0.01,
+        max: 1.0,
+      },
+      frequencyRange: {
+        type: "object",
+        properties: {
+          min: { type: "number", default: 0.5 },
+          max: { type: "number", default: 3.0 },
+        },
+      },
+      legendVisible: {
+        type: "object",
+        properties: {
+          phaseShiftedCosineChart: { type: "boolean", default: true },
+          nonPhaseShiftedCosineChart: { type: "boolean", default: false },
+          sineWaveChart: { type: "boolean", default: false },
+          complexPlaneChart: { type: "boolean", default: false },
+        },
+      },
+      charts: {
+        type: "object",
+        properties: {
+          phaseShiftedCosine: {
+            type: "object",
+            properties: {
+              canvasId: { type: "string", default: "phaseShiftedCosineChart" },
+              titleElementId: {
+                type: "string",
+                default: "phaseShiftedCosineTitle",
+              },
+              color: { type: "string", default: "orange" },
+              showDecomposedSum: { type: "boolean", default: false },
+            },
+          },
+          nonPhaseShiftedCosine: {
+            type: "object",
+            properties: {
+              canvasId: {
+                type: "string",
+                default: "nonPhaseShiftedCosineChart",
+              },
+              titleElementId: {
+                type: "string",
+                default: "nonPhaseShiftedCosineTitle",
+              },
+              color: { type: "string", default: "blue" },
+              showDecomposedSum: { type: "boolean", default: false },
+              showIntegrationArea: { type: "boolean", default: true },
+              showIntegrationLine: { type: "boolean", default: true },
+            },
+          },
+          sineWave: {
+            type: "object",
+            properties: {
+              canvasId: { type: "string", default: "sineWaveChart" },
+              titleElementId: { type: "string", default: "sineWaveTitle" },
+              color: { type: "string", default: "green" },
+              showDecomposedSum: { type: "boolean", default: false },
+              showXAxis: { type: "boolean", default: true },
+              flipYLabels: { type: "boolean", default: true },
+              showIntegrationArea: { type: "boolean", default: true },
+              showIntegrationLine: { type: "boolean", default: true },
+            },
+          },
+          complexPlane: {
+            type: "object",
+            properties: {
+              canvasId: { type: "string", default: "complexPlaneChart" },
+            },
+          },
+        },
+      },
+      elements: {
+        type: "object",
+        properties: {
+          angularFrequencySlider: {
+            type: "string",
+            default: "angularFrequencySlider",
+          },
+          angularFrequencyValue: {
+            type: "string",
+            default: "angularFrequencyValue",
+          },
+        },
+      },
+    },
   };
 
   /**

@@ -1,6 +1,7 @@
 // Factory pattern for creating different types of visualizers
 
 import { PhaseShiftVisualizer } from "./PhaseShiftVisualizer.js";
+import { IntegralVisualizer } from "./IntegralVisualizer.js";
 
 /**
  * Factory class for creating different types of visualizers
@@ -16,6 +17,13 @@ export class VisualizerFactory {
       description:
         "Visualizes phase-shifted cosine decomposition into sine and cosine components",
     },
+    integral: {
+      class: IntegralVisualizer,
+      name: "Integral Visualizer",
+      description:
+        "Visualizes how integration extracts cosine and sine components from phase-shifted cosine",
+    },
+    // Future visualizers can be added here
   };
 
   /**

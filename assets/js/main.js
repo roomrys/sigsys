@@ -9,11 +9,31 @@ import { CONFIG } from "./config.js";
 let currentVisualizer = null;
 
 /**
- * Application configuration - easily changeable for different tools
+ * Detect which page we're on and return the appropriate visualizer type
+ * @returns {string} Visualizer type
+ */
+function detectVisualizerType() {
+  const path = window.location.pathname;
+  const filename = path.split("/").pop() || "index.html";
+
+  if (filename === "integral.html") {
+    return "integral";
+  } else if (filename === "index.html" || filename === "") {
+    return "phase-shift";
+  }
+
+  // Default fallback
+  return "phase-shift";
+}
+
+/**
+ * Application configuration - automatically detects visualizer type based on page
  */
 const APP_CONFIG = {
-  // Change this to create different types of visualizers
-  visualizerType: "phase-shift", // 'phase-shift', 'fourier', 'frequency-domain'
+  // Automatically detect visualizer type based on current page
+  get visualizerType() {
+    return detectVisualizerType();
+  },
 
   // Override default configuration if needed
   configOverrides: {
@@ -46,6 +66,9 @@ const APP_CONFIG = {
  */
 function initializeApp() {
   try {
+    // Log detected page type for debugging
+    console.log(`Detected page type: ${APP_CONFIG.visualizerType}`);
+
     // Get the appropriate configuration template
     const config = createVisualizerConfig(
       APP_CONFIG.visualizerType,
@@ -91,6 +114,9 @@ function createVisualizerConfig(type, overrides = {}) {
     switch (type) {
       case "phase-shift":
         config = ConfigTemplates.getPhaseShiftConfig(overrides);
+        break;
+      case "integral":
+        config = ConfigTemplates.getIntegralConfig(overrides);
         break;
       case "fourier":
         config = ConfigTemplates.getFourierConfig(overrides);
