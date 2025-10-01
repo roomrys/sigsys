@@ -103,7 +103,7 @@ canvas {
 }
 
 /* GitHub link */
-.github-link {
+.homepage-link {
     position: absolute;
     bottom: var(--margin-lg);
     right: var(--margin-lg);
@@ -112,11 +112,11 @@ canvas {
     transition: opacity 0.3s ease;
 }
 
-.github-link:hover {
+.homepage-link:hover {
     opacity: 1;
 }
 
-.github-icon {
+.homepage-icon {
     height: 40px;
     width: auto;
     display: block;
